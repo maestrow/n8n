@@ -122,7 +122,7 @@ nodesController.post(
 		let installedPackage: InstalledPackages;
 
 		try {
-			installedPackage = await LoadNodesAndCredentials().loadNpmModule(
+			installedPackage = await LoadNodesAndCredentials().installNpmModule(
 				parsed.packageName,
 				parsed.version,
 			);

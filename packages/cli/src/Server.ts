@@ -135,6 +135,7 @@ import {
 import { loadPublicApiVersions } from './PublicApi';
 import * as telemetryScripts from './telemetry/scripts';
 import { nodeTypesController } from './api/nodeTypes.api';
+import { nodesDevController } from './api/nodesDev.api';
 
 require('body-parser-xml')(bodyParser);
 
@@ -705,6 +706,7 @@ class App {
 		// ----------------------------------------
 		if (config.getEnv('nodes.communityPackages.enabled')) {
 			this.app.use(`/${this.restEndpoint}/nodes`, nodesController);
+			this.app.use(`/${this.restEndpoint}/dev`, nodesDevController);
 		}
 
 		// ----------------------------------------

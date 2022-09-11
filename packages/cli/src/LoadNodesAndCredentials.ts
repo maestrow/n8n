@@ -231,11 +231,26 @@ class LoadNodesAndCredentialsClass {
 		};
 	}
 
-	async loadNpmModule(packageName: string, version?: string): Promise<InstalledPackages> {
-		const downloadFolder = UserSettings.getUserN8nFolderDowloadedNodesPath();
+	async installNpmModule(packageName: string, version?: string): Promise<InstalledPackages> {
 		const command = `npm install ${packageName}${version ? `@${version}` : ''}`;
-
 		await executeCommand(command);
+		return this.loadNpmModule(packageName);
+	}
+
+	async linkNpmModule(packageName: string): Promise<InstalledPackages> {
+		try {
+			await executeCommand(`npm link -S ${packageName}`);
+		} catch (error) {
+			if (error.message === RESPONSE_ERROR_MESSAGES.PACKAGE_NOT_FOUND) {
+				throw new Error(`The npm package "${packageName}" could not be found.`);
+			}
+			throw error;
+		}
+		return this.loadNpmModule(packageName);
+	}
+
+	async loadNpmModule(packageName: string): Promise<InstalledPackages> {
+		const downloadFolder = UserSettings.getUserN8nFolderDowloadedNodesPath();
 
 		const finalNodeUnpackedPath = path.join(downloadFolder, 'node_modules', packageName);
 
@@ -282,22 +297,11 @@ class LoadNodesAndCredentialsClass {
 		this.unloadNodes(installedPackage.installedNodes);
 	}
 
-	async updateNpmModule(
+	async updateModule(
 		packageName: string,
 		installedPackage: InstalledPackages,
 	): Promise<InstalledPackages> {
 		const downloadFolder = UserSettings.getUserN8nFolderDowloadedNodesPath();
-
-		const command = `npm i ${packageName}@latest`;
-
-		try {
-			await executeCommand(command);
-		} catch (error) {
-			if (error.message === RESPONSE_ERROR_MESSAGES.PACKAGE_NOT_FOUND) {
-				throw new Error(`The npm package "${packageName}" could not be found.`);
-			}
-			throw error;
-		}
 
 		this.unloadNodes(installedPackage.installedNodes);
 
@@ -340,6 +344,23 @@ class LoadNodesAndCredentialsClass {
 		}
 	}
 
+	async updateNpmModule(
+		packageName: string,
+		installedPackage: InstalledPackages,
+	): Promise<InstalledPackages> {
+		const command = `npm i ${packageName}@latest`;
+
+		try {
+			await executeCommand(command);
+		} catch (error) {
+			if (error.message === RESPONSE_ERROR_MESSAGES.PACKAGE_NOT_FOUND) {
+				throw new Error(`The npm package "${packageName}" could not be found.`);
+			}
+			throw error;
+		}
+		return this.updateModule(packageName, installedPackage);
+	}
+
 	/**
 	 * Loads a node from a file
 	 *
@@ -357,6 +378,7 @@ class LoadNodesAndCredentialsClass {
 		let nodeVersion = 1;
 
 		try {
+			delete require.cache[require.resolve(filePath)];
 			tempNode = loadClassInIsolation(filePath, nodeName);
 			this.addCodex({ node: tempNode, filePath, isCustom: packageName === 'CUSTOM' });
 		} catch (error) {
