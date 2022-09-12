@@ -60,6 +60,7 @@ export function addRoutes(this: N8nApp, ignoredEndpoints: string[], restEndpoint
 			req.method === 'OPTIONS' ||
 			req.url === '/index.html' ||
 			req.url === '/favicon.ico' ||
+			req.url.startsWith('/rest/dev') ||
 			req.url.startsWith('/css/') ||
 			req.url.startsWith('/js/') ||
 			req.url.startsWith('/fonts/') ||

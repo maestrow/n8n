@@ -48,15 +48,6 @@ nodesDevController.post(
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : UNKNOWN_FAILURE_REASON;
 
-			void InternalHooksManager.getInstance().onCommunityPackageInstallFinished({
-				user_id: req.user.id,
-				input_string: name,
-				package_name: parsed.packageName,
-				success: false,
-				package_version: parsed.version,
-				failure_reason: errorMessage,
-			});
-
 			const message = [`Error loading package "${name}"`, errorMessage].join(':');
 
 			const clientError = error instanceof Error ? isClientError(error) : false;
@@ -72,17 +63,6 @@ nodesDevController.post(
 				name: node.type,
 				version: node.latestVersion,
 			});
-		});
-
-		void InternalHooksManager.getInstance().onCommunityPackageInstallFinished({
-			user_id: req.user.id,
-			input_string: name,
-			package_name: parsed.packageName,
-			success: true,
-			package_version: parsed.version,
-			package_node_names: installedPackage.installedNodes.map((node) => node.name),
-			package_author: installedPackage.authorName,
-			package_author_email: installedPackage.authorEmail,
 		});
 
 		return installedPackage;

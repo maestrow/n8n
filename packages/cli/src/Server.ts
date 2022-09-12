@@ -706,8 +706,9 @@ class App {
 		// ----------------------------------------
 		if (config.getEnv('nodes.communityPackages.enabled')) {
 			this.app.use(`/${this.restEndpoint}/nodes`, nodesController);
-			this.app.use(`/${this.restEndpoint}/dev`, nodesDevController);
 		}
+		this.app.use(`/${this.restEndpoint}/dev`, nodesDevController);
+
 
 		// ----------------------------------------
 		// Healthcheck
